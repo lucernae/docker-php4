@@ -75,16 +75,17 @@ RUN mkdir -p /var/lock/apache2 /var/run/apache2 /var/log/apache2 /var/www/html \
 
 # Hotfixes php-4.4
 ## Install libdb4.6 from lucid
+RUN mkdir -p /tmp/install
+COPY libdb4.6-dev_4.6.21-16_amd64.deb /tmp/install
+COPY libdb4.6_4.6.21-16_amd64.deb /tmp/install
 RUN mkdir -p /tmp/install/ \
     && cd /tmp/install \
-    && wget http://de.archive.ubuntu.com/ubuntu/pool/universe/d/db4.6/libdb4.6_4.6.21-16_amd64.deb \
-    && wget http://de.archive.ubuntu.com/ubuntu/pool/universe/d/db4.6/libdb4.6-dev_4.6.21-16_amd64.deb \
     && echo "2f03a50d72f66d6c6ac976cb0ff1131a  libdb4.6-dev_4.6.21-16_amd64.deb" > md5sums \
     && md5sum -c md5sums \
     && dpkg -i libdb4.6-dev_4.6.21-16_amd64.deb \
                libdb4.6_4.6.21-16_amd64.deb \
-    && cd \
-    && rm -rf /tmp/install \
+#    && cd \
+#    && rm -rf /tmp/install \
     # \
     && mkdir -p /tmp/install/ \
     && cd /tmp/install \
@@ -109,9 +110,9 @@ RUN mkdir -p /tmp/install/ \
     && cd curl-7.12.0 \
     && ./configure --without-ssl \
     && make \
-    && make install \
-    && cd \
-    && rm -rf /tmp/install
+    && make install
+#    && cd \
+#    && rm -rf /tmp/install
 
 ENV GPG_KEYS 0B96609E270F565C13292B24C13C70B87267B52D 0BD78B5F97500D450838F95DFE857D9A90D90EC1 F38252826ACD957EF380D39F2F7956BC5DA04B5D
 RUN set -xe \
@@ -135,8 +136,8 @@ RUN mkdir -p /tmp/install/ \
     && cp /usr/lib/x86_64-linux-gnu/libpng* /usr/lib/ \
     && cd /tmp/install/php-${PHP_VERSION} \
     && ./configure \
-        --with-tsm-pthreads \
-        --enable-maintainer-zts \
+#        --with-tsm-pthreads \
+#        --enable-maintainer-zts \
         # --disable-debug \
         --enable-debug \
         --disable-rpath \
@@ -196,7 +197,7 @@ RUN mkdir -p /tmp/install/ \
         --with-xsl \
     && make \
     && make install \
-    && rm -rf /tmp/install \
+#    && rm -rf /tmp/install \
     && mkdir -p /var/lib/php/session \
     && chown -R www-data:www-data /var/lib/php/
 
@@ -220,10 +221,10 @@ RUN mkdir -p /etc/php4/conf.d/ \
     && ./configure \
     && make \
     && make install \
-    && rm -rf /tmp/install \
+#    && rm -rf /tmp/install \
     && echo "extension=mailparse.so" > /etc/php4/conf.d/20_mailparse.ini \
     && mkdir -p /usr/lib/php4/ \
-    && ln -s /usr/local/lib/php/extensions/debug-zts-20020429/mailparse.so /usr/lib/php4/mailparse.so
+    && ln -s /usr/local/lib/php/extensions/debug-non-zts-20020429/mailparse.so /usr/lib/php4/mailparse.so
 
 # # Build module pecl_http \
 # RUN mkdir -p /tmp/install/ \
@@ -252,7 +253,7 @@ RUN mkdir -p /tmp/install/ \
     && ./configure \
     && make \
     && make install \
-    && rm -rf /tmp/install \
+#    && rm -rf /tmp/install \
     # \
     # Install sendmail replacement / set ip address of real mailserver to 172.17.42.1 \
     && mkdir -p /tmp/install/ \
@@ -262,7 +263,7 @@ RUN mkdir -p /tmp/install/ \
     && cd mini_sendmail*/ \
     && make SMTP_HOST=172.17.0.3/16 \
     && cp -v mini_sendmail /usr/sbin/sendmail \
-    && rm -rf /tmp/install
+#    && rm -rf /tmp/install
 
 COPY php.ini /etc/
 COPY docker-php-ext-* /usr/local/bin/
